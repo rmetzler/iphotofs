@@ -86,14 +86,14 @@
 	NSArray * listOfAlbums = [_iPhotoDatabase objectForKey:@"List of Albums"];
 	NSEnumerator * enumerator = [listOfAlbums objectEnumerator];
 	
+	_dateDict = [[NSMutableDictionary alloc] init];
 	[_rootDict setObject:  [self folderDictionaryForKey: @"List of Albums" nameKey: @"AlbumName"] forKey: @"Albums"];
 	[_rootDict setObject: [self folderDictionaryForKey: @"List of Rolls" nameKey: @"RollName"] forKey: @"Rolls"];
+	[_rootDict setObject: _dateDict forKey: @"Dates"];
 	
-	[_imageDict release];
 	_imageDict = [_iPhotoDatabase objectForKey:@"Master Image List"];
 	[_imageDict retain];
-	
-	
+		 
 	_imageNameDict = [[NSMutableDictionary alloc] init];
 	enumerator = [_imageDict keyEnumerator];
 	id key;
@@ -102,7 +102,11 @@
 		NSDictionary *image = [_imageDict objectForKey: key];
 		NSString *path = [image objectForKey: @"ImagePath"];
 		NSString *name= [path lastPathComponent];
-	
+		
+		NSNumber *dateInterval = [image objectForKey: @"DateAsTimerInterval"];
+		NSDate *date = [NSDate dateWithTimeIntervalSinceReferenceDate: [dateInterval intValue]];
+		[self addImageKey: key forDate: date];
+		
 		if ([_imageNameDict objectForKey: name]) {
 			// name collision, uniquify the name with the roll ID
 			name = [NSString stringWithFormat: @"%@.%@", [image objectForKey: @"Roll"], name];
@@ -116,11 +120,37 @@
 	// TODO iterate through imageDict and cache date information
 }
 
+- (NSMutableDictionary *) folderForDate: (NSDate *) date
+{
+	NSString *dateFolderName = [date descriptionWithCalendarFormat:@"%Y-%m" timeZone:nil
+								 locale:[[NSUserDefaults standardUserDefaults] dictionaryRepresentation]];
+	
+	NSMutableDictionary *dateFolder = [_dateDict objectForKey: dateFolderName];
+	if (!dateFolder) {
+		dateFolder = [[NSMutableDictionary alloc] init];
+		[_dateDict setValue: dateFolder forKey: dateFolderName];
+		[dateFolder setObject: [[NSMutableArray alloc] init] forKey: @"KeyList"];
+	}
+	return dateFolder;
+}
+
+- (NSMutableArray *) keyListForDate: (NSDate *) date
+{
+	return [[self folderForDate: date] objectForKey: @"KeyList"];
+}	
+
+- (void) addImageKey: (NSString *)key forDate: (NSDate *) date
+{
+	[[self keyListForDate: date] addObject: key];
+}
+
+
 - (void) dealloc
 {
 	[_imageDict release]; 
 	[_rootDict release];
 	[_iPhotoDatabase release];
+	[_dateDict release];
 	[super dealloc];
 }
 
