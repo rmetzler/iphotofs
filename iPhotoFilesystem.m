@@ -19,11 +19,6 @@
 
 
 #import "iPhotoFilesystem.h"
-//
-//  iPhoto_Filesystem.m
-//
-//  Created by Phillip Bogle on 10/25/09.
-//
 #import <sys/xattr.h>
 #import <sys/stat.h>
 #import "iPhotoFilesystem.h"
@@ -54,7 +49,7 @@
 
 
 
-- (NSDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey
+- (NSMutableDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey
 {
 	NSArray * listOfFolders = [_iPhotoDatabase objectForKey: iPhotoKey];
 	NSEnumerator * enumerator = [listOfFolders objectEnumerator];
@@ -66,9 +61,9 @@
 	{
 		NSString *name = [current objectForKey: nameKey];
 		// replace spaces with underscores for command line friendliness
-		// name = [name stringByReplacingOccurrencesOfString: @" " withString: @"_"];
+		name = [name stringByReplacingOccurrencesOfString: @" " withString: @"_"];
 		[current setValue: name forKey: nameKey];
-		[folderDictionary setValue: name forKey: name ];			
+		[folderDictionary setValue: current forKey: name ];			
 	} // end loop through albums
 	
 	return folderDictionary;
@@ -91,37 +86,8 @@
 	NSArray * listOfAlbums = [_iPhotoDatabase objectForKey:@"List of Albums"];
 	NSEnumerator * enumerator = [listOfAlbums objectEnumerator];
 	
-	NSMutableDictionary *albumDict = [[NSMutableDictionary alloc] init];
-	
-	NSDictionary * current;
-	while (current = [enumerator nextObject])
-	{
-		NSString *name = [current objectForKey:@"AlbumName"];
-		// replace spaces with underscores for command line friendliness
-		// name = [name stringByReplacingOccurrencesOfString: @" " withString: @"_"];
-		 [current setValue: name forKey:@"AlbumName"];
-		[albumDict setValue: current forKey: name ];			
-	} // end loop through albums
-
-	[_rootDict setObject: albumDict forKey: @"Albums"];
-	[albumDict release];
-	
-	// ------------------------------------------
-	// cache information about all of the rolls
-	
-	NSArray * listOfRolls = [_iPhotoDatabase objectForKey:@"List of Rolls"];
-	NSEnumerator * rollEnumerator = [listOfRolls objectEnumerator];
-	
-	NSMutableDictionary *rollDict = [[NSMutableDictionary alloc] init];
-	
-	NSDictionary * currentRoll;
-	while (currentRoll = [rollEnumerator nextObject])
-	{
-		[rollDict setValue: currentRoll forKey: [currentRoll objectForKey:@"RollName"]];			
-	} // end loop through albums
-	
-	[_rootDict setObject: rollDict forKey: @"Rolls"];
-	[rollDict release];
+	[_rootDict setObject:  [self folderDictionaryForKey: @"List of Albums" nameKey: @"AlbumName"] forKey: @"Albums"];
+	[_rootDict setObject: [self folderDictionaryForKey: @"List of Rolls" nameKey: @"RollName"] forKey: @"Rolls"];
 	
 	[_imageDict release];
 	_imageDict = [_iPhotoDatabase objectForKey:@"Master Image List"];

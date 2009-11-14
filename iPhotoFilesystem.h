@@ -27,7 +27,7 @@
 
 - (id) init;
 - (void)parsePhotos;
-- (NSDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey;
+- (NSMutableDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey;
 - (void) dealloc;
 
 @end
