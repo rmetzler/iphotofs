@@ -23,11 +23,15 @@
 
 	NSDictionary *_imageDict;
 	NSDictionary *_imageNameDict;
+	NSDictionary *_dateDict;
 }
 
 - (id) init;
 - (void)parsePhotos;
 - (NSMutableDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey;
+- (NSMutableDictionary *) folderForDate: (NSDate *) date;
+- (NSMutableArray *) keyListForDate: (NSDate *) date;
+- (void) addImageKey: (NSString *)key forDate: (NSDate *) date;
 - (void) dealloc;
 
 @end
