@@ -251,16 +251,14 @@
 	}
 }
 
-
-/*
  - (NSDictionary *)attributesOfFileSystemForPath:(NSString *)path
                                           error:(NSError **)error 
 {
-	NSMutableDictionary* attribs = [NSMutableDictionary dictionary];
-	[attribs setObject:[NSNumber numberWithBool:YES]
-				forKey:kGMUserFileSystemVolumeSupportsExtendedDatesKey];
-	return attribs;
+    NSDictionary* d =[[NSFileManager defaultManager] attributesOfFileSystemForPath: @"/" error:error];
+	return d;
 }
+ 
+/*
 
 - (NSArray *)extendedAttributesOfItemAtPath:(NSString *)path error:(NSError **)error {
 	NSString *p = [self fileNameForPath: path];

@@ -59,6 +59,7 @@
   [options addObject:volArg];
   [options addObject:@"volname=iphotofs"];
   [options addObject:@"rdonly"];
+  [options addObject:@"allow_other"];
   [fs_ mountAtPath:mountPath withOptions:options];
 }
 
