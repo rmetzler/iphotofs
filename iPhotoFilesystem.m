@@ -49,7 +49,7 @@
 
 
 
-- (NSMutableDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey
+- (NSMutableDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey idKey: (NSString *) idKey
 {
 	NSArray * listOfFolders = [_iPhotoDatabase objectForKey: iPhotoKey];
 	NSEnumerator * enumerator = [listOfFolders objectEnumerator];
@@ -62,6 +62,10 @@
 		NSString *name = [current objectForKey: nameKey];
 		// replace spaces with underscores for command line friendliness
 		name = [name stringByReplacingOccurrencesOfString: @" " withString: @"_"];
+		if ([folderDictionary valueForKey: name]) {
+			// name collision, uniquify the name with the roll ID
+			name = [NSString stringWithFormat: @"%@_%@", name, [current objectForKey: idKey]];
+		}
 		[current setValue: name forKey: nameKey];
 		[folderDictionary setValue: current forKey: name ];			
 	} // end loop through albums
@@ -78,7 +82,6 @@
 	[_iPhotoDatabase retain];
 	
 	_rootDict = [[NSMutableDictionary alloc] init];
-	
 
 	// ------------------------------------------
 	// cache information about all of the albums
@@ -87,8 +90,8 @@
 	NSEnumerator * enumerator = [listOfAlbums objectEnumerator];
 	
 	_dateDict = [[NSMutableDictionary alloc] init];
-	[_rootDict setObject:  [self folderDictionaryForKey: @"List of Albums" nameKey: @"AlbumName"] forKey: @"Albums"];
-	[_rootDict setObject: [self folderDictionaryForKey: @"List of Rolls" nameKey: @"RollName"] forKey: @"Rolls"];
+	[_rootDict setObject:  [self folderDictionaryForKey: @"List of Albums" nameKey: @"AlbumName" idKey: @"AlbumId"] forKey: @"Albums"];
+	[_rootDict setObject: [self folderDictionaryForKey: @"List of Rolls" nameKey: @"RollName" idKey: @"RollID"] forKey: @"Rolls"];
 	[_rootDict setObject: _dateDict forKey: @"Dates"];
 	
 	_imageDict = [_iPhotoDatabase objectForKey:@"Master Image List"];
@@ -164,6 +167,7 @@
 	
 	NSDictionary *node = _rootDict;
 	
+	//start at 1 to skip "/"
 	for (int i=1, count = [pathComponents count]; i < count; i++) {
 		NSString *pathComponent = [pathComponents objectAtIndex: i];
 		NSArray *keylist = [node objectForKey: @"KeyList"];
@@ -220,7 +224,7 @@
 
 	NSArray *pathComponents = [path pathComponents];   
 	NSString *extension = [path pathExtension];
-	BOOL isDirectory =  [extension length] == 0;
+	BOOL isDirectory = [node objectForKey: @"MediaType"] == nil;
 	
 	if (isDirectory) {
 		
