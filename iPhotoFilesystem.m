@@ -206,7 +206,7 @@
 
 #pragma mark Getting Attributes
 
-- (NSDictionary *)attributesOfItemAtPath:(NSString *)path error:(NSError **)error 
+- (NSDictionary *)attributesOfItemAtPath:(NSString *)path userData:(id)ud error:(NSError **)error
 {
 	/*
 	NSString* p = [rootPath_ stringByAppendingString:path];
@@ -258,8 +258,6 @@
 	return d;
 }
  
-/*
-
 - (NSArray *)extendedAttributesOfItemAtPath:(NSString *)path error:(NSError **)error {
 	NSString *p = [self fileNameForPath: path];
 	if (!p) return nil;
@@ -308,7 +306,7 @@
 	}  
 	return data;
 }
-*/
+
 
 #pragma mark File Contents
 - (BOOL)openFileAtPath:(NSString *)path 
@@ -356,21 +354,7 @@
 	*error = [NSError errorWithPOSIXCode:ENOENT];
 	return NO;
 }
-
-#pragma mark Extended Attributes (Optional)
-
-- (NSArray *)extendedAttributesOfItemAtPath:(NSString *)path error:(NSError **)error {
-	return [NSArray array];  // No extended attributes.
-}
-
-- (NSData *)valueOfExtendedAttribute:(NSString *)name 
-                        ofItemAtPath:(NSString *)path
-                            position:(off_t)position
-                               error:(NSError **)error {
-	*error = [NSError errorWithPOSIXCode:ENOATTR];
-	return nil;
-}
-*/
+ */
 
 /*
 #pragma mark FinderInfo and ResourceFork (Optional)
