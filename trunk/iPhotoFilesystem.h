@@ -31,7 +31,7 @@
 - (NSArray *)contentsOfDirectoryAtPath:(NSString *)path error:(NSError **)error;
 - (NSDictionary *)attributesOfItemAtPath:(NSString *)_path userData:(id)_ud error:(NSError **)error;
 
-- (NSMutableDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey;
+- (NSMutableDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey idKey: (NSString *) idKey;
 - (NSMutableDictionary *) folderForDate: (NSDate *) date;
 - (NSMutableArray *) keyListForDate: (NSDate *) date;
 - (void) addImageKey: (NSString *)key forDate: (NSDate *) date;
@@ -43,3 +43,5 @@
 @interface NSError (POSIX)                                                                                                               
 + (NSError *)errorWithPOSIXCode:(int)code;                                                                                               
 @end                                                                                                                                     
+
+

@@ -48,14 +48,16 @@
 }
 
 
-
 - (NSMutableDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey idKey: (NSString *) idKey
 {
+	if (!iPhotoKey || !nameKey || !idKey) {
+		return nil;
+	}
 	NSArray * listOfFolders = [_iPhotoDatabase objectForKey: iPhotoKey];
-	NSEnumerator * enumerator = [listOfFolders objectEnumerator];
 
 	NSMutableDictionary *folderDictionary = [[[NSMutableDictionary alloc] init] autorelease];
 
+	NSEnumerator * enumerator = [listOfFolders objectEnumerator];
 	NSDictionary * current;
 	while (current = [enumerator nextObject])
 	{
@@ -87,7 +89,7 @@
 	// cache information about all of the albums
 	
 	NSArray * listOfAlbums = [_iPhotoDatabase objectForKey:@"List of Albums"];
-	NSEnumerator * enumerator = [listOfAlbums objectEnumerator];
+	NSEnumerator * imageEnumerator = [listOfAlbums objectEnumerator];
 	
 	_dateDict = [[NSMutableDictionary alloc] init];
 	[_rootDict setObject:  [self folderDictionaryForKey: @"List of Albums" nameKey: @"AlbumName" idKey: @"AlbumId"] forKey: @"Albums"];
@@ -98,15 +100,17 @@
 	[_imageDict retain];
 		 
 	_imageNameDict = [[NSMutableDictionary alloc] init];
-	enumerator = [_imageDict keyEnumerator];
+	imageEnumerator = [_imageDict keyEnumerator];
 	id key;
-	
-	while ((key = [enumerator nextObject])) {
+	while ((key = [imageEnumerator nextObject])) {
 		NSDictionary *image = [_imageDict objectForKey: key];
 		NSString *path = [image objectForKey: @"ImagePath"];
 		NSString *name= [path lastPathComponent];
+		if (!name) { continue; }
 		
 		NSNumber *dateInterval = [image objectForKey: @"DateAsTimerInterval"];
+		if (!dateInterval) { continue; }
+		
 		NSDate *date = [NSDate dateWithTimeIntervalSinceReferenceDate: [dateInterval intValue]];
 		[self addImageKey: key forDate: date];
 		
@@ -125,6 +129,9 @@
 
 - (NSMutableDictionary *) folderForDate: (NSDate *) date
 {
+	if (!date) {
+		return nil;
+	}
 	NSString *dateFolderName = [date descriptionWithCalendarFormat:@"%Y-%m" timeZone:nil
 								 locale:[[NSUserDefaults standardUserDefaults] dictionaryRepresentation]];
 	
@@ -223,7 +230,6 @@
 	}
 
 	NSArray *pathComponents = [path pathComponents];   
-	NSString *extension = [path pathExtension];
 	BOOL isDirectory = [node objectForKey: @"MediaType"] == nil;
 	
 	if (isDirectory) {
@@ -397,7 +403,8 @@
 }
 */
 
-
-
-
 @end
+
+
+
+
