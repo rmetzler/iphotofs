@@ -15,9 +15,9 @@
  limitations under the License.
  */
 
-#import "iPhotoFilesystem.h"
-#import "iPhotoFS_Controller.h"
 #import <MacFUSE/MacFUSE.h>
+#import "iPhotoFS_Controller.h"
+#import "iPhotoFilesystem.h"
 
 @implementation iPhotoFSController
 
@@ -31,7 +31,7 @@
 				   name:kGMUserFileSystemDidUnmount object:nil];
 	
 	NSString* mountPath = @"/Volumes/iphotofs";
-	fs_delegate_ = [[iPhotoFilesystem alloc] init];
+	fs_delegate_ = [[iPhotoFilesystemWithReloading alloc] init];
 	fs_ = [[GMUserFileSystem alloc] initWithDelegate:fs_delegate_ isThreadSafe: NO];
 	
 	NSMutableArray* options = [NSMutableArray array];

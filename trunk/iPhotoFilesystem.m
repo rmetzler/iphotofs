@@ -18,11 +18,11 @@
  */
 
 
-#import "iPhotoFilesystem.h"
 #import <sys/xattr.h>
 #import <sys/stat.h>
-#import "iPhotoFilesystem.h"
 #import <MacFUSE/MacFUSE.h>
+#import "iPhotoFilesystem.h"
+#import "WatchDog.h"
 
 
 @implementation iPhotoFilesystem
@@ -48,7 +48,7 @@
 }
 
 
-- (NSMutableDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey idKey: (NSString *) idKey
+- (NSMutableDictionary *) folderForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey idKey: (NSString *) idKey
 {
 	if (!iPhotoKey || !nameKey || !idKey) {
 		return nil;
@@ -75,14 +75,37 @@
 	return folderDictionary;
 }
 
+- (NSString *) libraryPath
+{
+	if (_libraryPath) {
+		return _libraryPath;
+	}
+	NSString *libraryPath = nil;                                                                    
+	NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];                                     
+
+	NSDictionary* appPrefs = [ud persistentDomainForName:@"com.apple.iApps"];                       
+
+	NSArray *dbs = [appPrefs objectForKey:@"iPhotoRecentDatabases"];                                
+	if ([dbs count] > 0) {                                                                          
+		NSURL *url = [NSURL URLWithString:[dbs objectAtIndex:0]];                                   
+		if ([url isFileURL]) {                                                                      
+			libraryPath = [[url path] copy];                                                        
+		}                                                                                           
+	}                                                                                               
+
+	if (!libraryPath) {                                                                             
+		libraryPath = [[NSHomeDirectory() stringByAppendingString:                                  
+						@"/Pictures/iPhoto Library/AlbumData.xml"]                                 
+					   copy];                                                                      
+	}
+	
+	_libraryPath = libraryPath;
+	return _libraryPath;
+}
+
 - (void)parsePhotos
 {
-	NSString *album_data_file = @"~/Pictures/iPhoto Library/AlbumData.xml";
-	NSURL * iPhotoDbLocation = [NSURL fileURLWithPath:[album_data_file stringByExpandingTildeInPath]];
-	
-	_iPhotoDatabase = [NSDictionary dictionaryWithContentsOfURL:iPhotoDbLocation];
-	[_iPhotoDatabase retain];
-	
+	_iPhotoDatabase = [[NSDictionary alloc] initWithContentsOfFile: [self libraryPath]];
 	_rootDict = [[NSMutableDictionary alloc] init];
 
 	// ------------------------------------------
@@ -92,8 +115,8 @@
 	NSEnumerator * imageEnumerator = [listOfAlbums objectEnumerator];
 	
 	_dateDict = [[NSMutableDictionary alloc] init];
-	[_rootDict setObject:  [self folderDictionaryForKey: @"List of Albums" nameKey: @"AlbumName" idKey: @"AlbumId"] forKey: @"Albums"];
-	[_rootDict setObject: [self folderDictionaryForKey: @"List of Rolls" nameKey: @"RollName" idKey: @"RollID"] forKey: @"Rolls"];
+	[_rootDict setObject:  [self folderForKey: @"List of Albums" nameKey: @"AlbumName" idKey: @"AlbumId"] forKey: @"Albums"];
+	[_rootDict setObject: [self folderForKey: @"List of Rolls" nameKey: @"RollName" idKey: @"RollID"] forKey: @"Rolls"];
 	[_rootDict setObject: _dateDict forKey: @"Dates"];
 	
 	_imageDict = [_iPhotoDatabase objectForKey:@"Master Image List"];
@@ -121,10 +144,8 @@
 		[image setValue: name forKey: @"ImageName"];
 
 		[_imageNameDict setValue: image forKey: name];
-		/* code that uses the returned key */
 	}	
 
-	// TODO iterate through imageDict and cache date information
 }
 
 - (NSMutableDictionary *) folderForDate: (NSDate *) date
@@ -161,6 +182,7 @@
 	[_rootDict release];
 	[_iPhotoDatabase release];
 	[_dateDict release];
+	[_libraryPath release];
 	[super dealloc];
 }
 
@@ -174,7 +196,7 @@
 	
 	NSDictionary *node = _rootDict;
 	
-	//start at 1 to skip "/"
+	// look up each path component, starting  at 1 to skip "/"
 	for (int i=1, count = [pathComponents count]; i < count; i++) {
 		NSString *pathComponent = [pathComponents objectAtIndex: i];
 		NSArray *keylist = [node objectForKey: @"KeyList"];
@@ -403,7 +425,114 @@
 }
 */
 
+
+
+
 @end
+
+
+@implementation iPhotoFilesystemWithReloading
+
+- (id) init
+{
+	if (self = [super init]) {
+		_lock = [[NSLock alloc] init];
+		_lastReparseTime = nil;
+		
+		[self reload];
+		[[Watchdog sharedWatchdog] watchLibrary: self]; 
+	}
+	return self;
+}
+
+- (iPhotoFilesystem *) fileSystem
+{
+	[_lock lock];
+	iPhotoFilesystem *result = _iPhotoFileSystem;
+	[_lock unlock];
+	return result;	
+}
+
+- (void)reload                                                                                      
+{
+	const int minimumReparseInterval = 5;
+	NSDate *date = [NSDate dateWithTimeIntervalSinceNow: -minimumReparseInterval];
+	
+	if (!_lastReparseTime || [_lastReparseTime compare: date] < 0) { 
+		iPhotoFilesystem *newFileSystem = [[iPhotoFilesystem alloc] init];
+		
+		[_lock lock];
+		[_iPhotoFileSystem release];
+		_iPhotoFileSystem = newFileSystem;
+		[_lastReparseTime release];
+		_lastReparseTime = [[NSDate alloc] init];
+		[_lock unlock];
+	} 
+}
+
+- (NSString *) libraryPath
+{
+	return [[self fileSystem] libraryPath];
+}
+
+- (void) dealloc                                                                                    
+{                                                                                                   
+    [[Watchdog sharedWatchdog] forgetLibrary:self];                                                 
+    [_iPhotoFileSystem release];                                                                              
+	[_lock release];
+	[_lastReparseTime release];
+	
+    [super dealloc];                                                                                
+}   
+
+- (NSArray *)contentsOfDirectoryAtPath:(NSString *)path error:(NSError **)error
+{
+	return [[self fileSystem] contentsOfDirectoryAtPath: path error: error];
+}
+
+- (NSDictionary *)attributesOfItemAtPath:(NSString *)path userData:(id) ud error:(NSError **)error
+{
+	return [[self fileSystem] attributesOfItemAtPath: path userData: ud error: error];
+}
+
+- (NSDictionary *)attributesOfFileSystemForPath:(NSString *)path error:(NSError **)error
+{
+	return [[self fileSystem] attributesOfFileSystemForPath: path error: error];	
+}
+- (NSData *)valueOfExtendedAttribute:(NSString *)name 
+                        ofItemAtPath:(NSString *)path
+                            position:(off_t)position
+                               error:(NSError **)error
+{
+	return [[self fileSystem] valueOfExtendedAttribute:name	ofItemAtPath:path  position: position error: error];
+}
+
+- (BOOL)openFileAtPath:(NSString *)path 
+                  mode:(int)mode
+              userData:(id *)userData
+                 error:(NSError **)error
+{
+	return [[self fileSystem] openFileAtPath:path mode:mode	userData: userData error: error];
+}
+
+- (void)releaseFileAtPath:(NSString *)path userData:(id)userData
+{
+	return [[self fileSystem] releaseFileAtPath: path userData: userData];
+}
+
+- (int)readFileAtPath:(NSString *)path 
+             userData:(id)userData
+               buffer:(char *)buffer 
+                 size:(size_t)size 
+               offset:(off_t)offset
+                error:(NSError **)error
+{
+	return [[self fileSystem] readFileAtPath: path userData:userData buffer:buffer size:size offset:offset error:error];
+}
+
+
+@end
+
 
 
 
