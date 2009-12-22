@@ -18,26 +18,80 @@
 #import <Cocoa/Cocoa.h>
 
 @interface iPhotoFilesystem : NSObject {
+	NSString *_libraryPath;
 	NSDictionary *_iPhotoDatabase;
 	NSMutableDictionary *_rootDict;
-
 	NSDictionary *_imageDict;
 	NSDictionary *_imageNameDict;
 	NSDictionary *_dateDict;
 }
 
 - (id) init;
+- (NSString *) libraryPath;
 - (void)parsePhotos;
-- (NSArray *)contentsOfDirectoryAtPath:(NSString *)path error:(NSError **)error;
-- (NSDictionary *)attributesOfItemAtPath:(NSString *)_path userData:(id)_ud error:(NSError **)error;
-
-- (NSMutableDictionary *) folderDictionaryForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey idKey: (NSString *) idKey;
+- (NSMutableDictionary *) folderForKey: (NSString *) iPhotoKey  nameKey: (NSString *) nameKey idKey: (NSString *) idKey;
 - (NSMutableDictionary *) folderForDate: (NSDate *) date;
 - (NSMutableArray *) keyListForDate: (NSDate *) date;
 - (void) addImageKey: (NSString *)key forDate: (NSDate *) date;
 - (void) dealloc;
 
+- (NSArray *)contentsOfDirectoryAtPath:(NSString *)path error:(NSError **)error;
+- (NSDictionary *)attributesOfItemAtPath:(NSString *)_path userData:(id)_ud error:(NSError **)error;
+- (NSDictionary *)attributesOfFileSystemForPath:(NSString *)path error:(NSError **)error;
+- (NSData *)valueOfExtendedAttribute:(NSString *)name 
+                        ofItemAtPath:(NSString *)path
+                            position:(off_t)position
+                               error:(NSError **)error; 
+	
+- (BOOL)openFileAtPath:(NSString *)path 
+                  mode:(int)mode
+              userData:(id *)userData
+                 error:(NSError **)error;
+	
+- (void)releaseFileAtPath:(NSString *)path userData:(id)userData;
+- (int)readFileAtPath:(NSString *)path 
+             userData:(id)userData
+               buffer:(char *)buffer 
+                 size:(size_t)size 
+               offset:(off_t)offset
+                error:(NSError **)error;
+
 @end
+
+
+@interface iPhotoFilesystemWithReloading : NSObject {
+	iPhotoFilesystem *_iPhotoFileSystem;
+	NSLock *_lock;
+	NSDate *_lastReparseTime;
+}
+- (id) init;
+- (NSString *) libraryPath;
+- (void)reload;
+
+
+- (NSArray *)contentsOfDirectoryAtPath:(NSString *)path error:(NSError **)error;
+- (NSDictionary *)attributesOfItemAtPath:(NSString *)_path userData:(id)_ud error:(NSError **)error;
+- (NSDictionary *)attributesOfFileSystemForPath:(NSString *)path error:(NSError **)error;
+- (NSData *)valueOfExtendedAttribute:(NSString *)name 
+                        ofItemAtPath:(NSString *)path
+                            position:(off_t)position
+                               error:(NSError **)error; 
+
+- (BOOL)openFileAtPath:(NSString *)path 
+                  mode:(int)mode
+              userData:(id *)userData
+                 error:(NSError **)error;
+
+- (void)releaseFileAtPath:(NSString *)path userData:(id)userData;
+- (int)readFileAtPath:(NSString *)path 
+             userData:(id)userData
+               buffer:(char *)buffer 
+                 size:(size_t)size 
+               offset:(off_t)offset
+                error:(NSError **)error;
+@end
+
+
 
 // Category on NSError to  simplify creating an NSError based on posix errno.                                                            
 @interface NSError (POSIX)                                                                                                               

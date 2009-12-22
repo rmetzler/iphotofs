@@ -19,11 +19,11 @@
 
 @class GMUserFileSystem;
 @class iPhotoFS_Controller;
-@class iPhotoFilesystem;
+@class iPhotoFilesystemWithReloading;
 
 @interface iPhotoFSController : NSObject {
   GMUserFileSystem* fs_;
-  iPhotoFilesystem* fs_delegate_;
+  iPhotoFilesystemWithReloading* fs_delegate_;
 }
 
 @end

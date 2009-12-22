@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
+		465356B910BCB528006D8666 /* Watchdog.m in Sources */ = {isa = PBXBuildFile; fileRef = 465356B810BCB528006D8666 /* Watchdog.m */; };
+		465356BB10BCB569006D8666 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 465356BA10BCB569006D8666 /* README */; };
+		469C8D9A10E072620004F080 /* iphotofs_app.icns in Resources */ = {isa = PBXBuildFile; fileRef = 469C8D9910E072620004F080 /* iphotofs_app.icns */; };
 		46E1C17110ACDE710084B1A2 /* iPhotoFilesystem.m in Sources */ = {isa = PBXBuildFile; fileRef = 46E1C17010ACDE710084B1A2 /* iPhotoFilesystem.m */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -26,6 +29,10 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* iPhotoFS_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iPhotoFS_Prefix.pch; sourceTree = "<group>"; };
+		465356B710BCB528006D8666 /* Watchdog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Watchdog.h; sourceTree = "<group>"; };
+		465356B810BCB528006D8666 /* Watchdog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Watchdog.m; sourceTree = "<group>"; };
+		465356BA10BCB569006D8666 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		469C8D9910E072620004F080 /* iphotofs_app.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = iphotofs_app.icns; sourceTree = "<group>"; };
 		46E1C16F10ACDE710084B1A2 /* iPhotoFilesystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iPhotoFilesystem.h; sourceTree = "<group>"; };
 		46E1C17010ACDE710084B1A2 /* iPhotoFilesystem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iPhotoFilesystem.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -56,6 +63,8 @@
 				46E1C17010ACDE710084B1A2 /* iPhotoFilesystem.m */,
 				FFD925BE0EE507A800A7B2B2 /* iPhotoFS_Controller.h */,
 				FFD925BF0EE507A800A7B2B2 /* iPhotoFS_Controller.m */,
+				465356B710BCB528006D8666 /* Watchdog.h */,
+				465356B810BCB528006D8666 /* Watchdog.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -95,6 +104,7 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
+				465356BA10BCB569006D8666 /* README */,
 			);
 			name = iPhotoFS;
 			sourceTree = "<group>";
@@ -111,6 +121,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				469C8D9910E072620004F080 /* iphotofs_app.icns */,
 				FFA311CE0EE5160400FF2904 /* iphotofs.icns */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
@@ -174,6 +185,8 @@
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
 				FFA311CF0EE5160400FF2904 /* iphotofs.icns in Resources */,
+				465356BB10BCB569006D8666 /* README in Resources */,
+				469C8D9A10E072620004F080 /* iphotofs_app.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,6 +200,7 @@
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				FFD925C00EE507A800A7B2B2 /* iPhotoFS_Controller.m in Sources */,
 				46E1C17110ACDE710084B1A2 /* iPhotoFilesystem.m in Sources */,
+				465356B910BCB528006D8666 /* Watchdog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
