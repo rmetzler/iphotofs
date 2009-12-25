@@ -80,24 +80,36 @@
 	if (_libraryPath) {
 		return _libraryPath;
 	}
+	// debugging
+	
 	NSString *libraryPath = nil;                                                                    
-	NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];                                     
+	
+	NSString *testAlbumPath = nil;
+	// testAlbumPath = [NSHomeDirectory() stringByAppendingString: @"/TestAlbumData.xml"] ;
+	
+	if (testAlbumPath) {
+		libraryPath = [testAlbumPath copy]; 
+	} else {
+		
+		NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];                                     
 
-	NSDictionary* appPrefs = [ud persistentDomainForName:@"com.apple.iApps"];                       
+		NSDictionary* appPrefs = [ud persistentDomainForName:@"com.apple.iApps"];                       
 
-	NSArray *dbs = [appPrefs objectForKey:@"iPhotoRecentDatabases"];                                
-	if ([dbs count] > 0) {                                                                          
-		NSURL *url = [NSURL URLWithString:[dbs objectAtIndex:0]];                                   
-		if ([url isFileURL]) {                                                                      
-			libraryPath = [[url path] copy];                                                        
-		}                                                                                           
-	}                                                                                               
+		NSArray *dbs = [appPrefs objectForKey:@"iPhotoRecentDatabases"];                                
+		if ([dbs count] > 0) {                                                                          
+			NSURL *url = [NSURL URLWithString:[dbs objectAtIndex:0]];                                   
+			if ([url isFileURL]) {                                                                      
+				libraryPath = [[url path] copy];                                                        
+			}                                                                                           
+		}                                                                                               
 
-	if (!libraryPath) {                                                                             
-		libraryPath = [[NSHomeDirectory() stringByAppendingString:                                  
-						@"/Pictures/iPhoto Library/AlbumData.xml"]                                 
-					   copy];                                                                      
+		if (!libraryPath) {                                                                             
+			libraryPath = [[NSHomeDirectory() stringByAppendingString:                                  
+							@"/Pictures/iPhoto Library/AlbumData.xml"]                                 
+						   copy];                                                                      
+		}
 	}
+	
 	
 	_libraryPath = libraryPath;
 	return _libraryPath;
@@ -107,7 +119,9 @@
 {
 	_iPhotoDatabase = [[NSDictionary alloc] initWithContentsOfFile: [self libraryPath]];
 	_rootDict = [[NSMutableDictionary alloc] init];
-
+	
+	NSString * iPhotoVersionString = [_iPhotoDatabase objectForKey:@"Application Version"];
+	int majorVersion = [iPhotoVersionString intValue];
 	// ------------------------------------------
 	// cache information about all of the albums
 	
@@ -116,7 +130,11 @@
 	
 	_dateDict = [[NSMutableDictionary alloc] init];
 	[_rootDict setObject:  [self folderForKey: @"List of Albums" nameKey: @"AlbumName" idKey: @"AlbumId"] forKey: @"Albums"];
-	[_rootDict setObject: [self folderForKey: @"List of Rolls" nameKey: @"RollName" idKey: @"RollID"] forKey: @"Rolls"];
+	if (majorVersion >= 7) {
+		[_rootDict setObject: [self folderForKey: @"List of Rolls" nameKey: @"RollName" idKey: @"RollID"] forKey: @"Rolls"];
+	} else {
+		[_rootDict setObject: [self folderForKey: @"List of Rolls" nameKey: @"AlbumName" idKey: @"AlbumID"] forKey: @"Rolls"];
+	}
 	[_rootDict setObject: _dateDict forKey: @"Dates"];
 	
 	_imageDict = [_iPhotoDatabase objectForKey:@"Master Image List"];
