@@ -24,7 +24,8 @@
 #import "iPhotoFilesystem.h"
 #import "WatchDog.h"
 
-
+#define TEST_ALBUM_PATH  nil
+// #define TEST_ALBUM_PATH  ([NSHomeDirectory() stringByAppendingString: @"/ExtAlbumData.xml"])
 @implementation iPhotoFilesystem
 
 
@@ -62,8 +63,44 @@
 	while (current = [enumerator nextObject])
 	{
 		NSString *name = [current objectForKey: nameKey];
-		// replace spaces with underscores for command line friendliness
-		name = [name stringByReplacingOccurrencesOfString: @" " withString: @"_"];
+		
+		// see if we need to strip hi characters
+		bool stripHiChars = false;
+		for (int i=0, len = name.length; i < len; i++) {
+			if ([name characterAtIndex: i] > 128) {
+				stripHiChars = true;
+				break;
+			}
+		}
+		
+		if (stripHiChars) {
+			name = [NSMutableString stringWithString: name];
+			CFStringNormalize((CFMutableStringRef)name, kCFStringNormalizationFormD);
+		}
+	
+		if ([name rangeOfString: @" "].location >= 0) {
+			// replace spaces with underscores for command line friendliness
+			name = [name stringByReplacingOccurrencesOfString: @" " withString: @"_"];
+		}
+				
+		
+		/*if (stripHiChars) {
+			NSMutableString *s = [[NSMutableString alloc] init];
+			for (int i=0; i < name.length; i++) {
+				unsigned char ch = [name characterAtIndex: i];
+				if (ch > 128) {
+					[s appendString: @"?"];
+				} else {
+					[s appendFormat: @"%c", ch];
+				}
+			}
+			name = s;
+		}
+		
+		
+		name = [NSString stringWithCString: [name UTF8String]];
+		*/
+		
 		if ([folderDictionary valueForKey: name]) {
 			// name collision, uniquify the name with the roll ID
 			name = [NSString stringWithFormat: @"%@_%@", name, [current objectForKey: idKey]];
@@ -84,8 +121,7 @@
 	
 	NSString *libraryPath = nil;                                                                    
 	
-	NSString *testAlbumPath = nil;
-	// testAlbumPath = [NSHomeDirectory() stringByAppendingString: @"/TestAlbumData.xml"] ;
+	NSString *testAlbumPath = TEST_ALBUM_PATH;
 	
 	if (testAlbumPath) {
 		libraryPath = [testAlbumPath copy]; 
@@ -231,7 +267,8 @@
 - (NSString *)fileNameForPath: (NSString *)path
 {
 	NSDictionary *node = [self libraryNodeForPath: path];
-	return node ? [node objectForKey: @"ImagePath"] : nil;
+	NSString *result = node ? [NSString stringWithCString: [[node objectForKey: @"ImagePath"] UTF8String] encoding: NSUTF8StringEncoding] : nil;
+	return result;
 }		
 
 - (NSArray *)contentsOfDirectoryAtPath:(NSString *)path 
@@ -280,6 +317,7 @@
 		if ([keys count] > 0) {
 			NSDictionary *child = [_imageDict objectForKey: [keys objectAtIndex: 0]];
 			attribs =[[NSFileManager defaultManager] attributesOfItemAtPath: [child objectForKey: @"ImagePath"] error: nil] ;
+			
 		}
 		
 		NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -290,12 +328,11 @@
 				attribs ? [attribs objectForKey: NSFileModificationDate] : [NSDate date], NSFileModificationDate, 
 				NSFileTypeDirectory, NSFileType,
 				nil]; 
-		
 		return result;
 	} else if (![[pathComponents objectAtIndex: 1] isEqual: @"System"]) {
 		NSString *p = [self fileNameForPath: path];
-		NSDictionary* attribs = p ? [[NSFileManager defaultManager] attributesOfItemAtPath:p error:error] : nil;
-		return attribs;
+		NSDictionary* result = p ? [[NSFileManager defaultManager] attributesOfItemAtPath: p error:error] : nil;
+		return result;
 	} else {
 		return nil;
 	}
@@ -308,9 +345,11 @@
 	return d;
 }
  
+
 - (NSArray *)extendedAttributesOfItemAtPath:(NSString *)path error:(NSError **)error {
 	NSString *p = [self fileNameForPath: path];
 	if (!p) return nil;
+	
 	
 	ssize_t size = listxattr([p UTF8String], nil, 0, 0);
 	if ( size < 0 ) {
@@ -333,7 +372,7 @@
 	return contents;
 }
 
-- (NSData *)valueOfExtendedAttribute:(NSString *)name 
+ - (NSData *)valueOfExtendedAttribute:(NSString *)name 
                         ofItemAtPath:(NSString *)path
                             position:(off_t)position
                                error:(NSError **)error {  
@@ -353,10 +392,10 @@
 	if ( size < 0 ) {
 		*error = [NSError errorWithPOSIXCode:errno];
 		return nil;
-	}  
+	} 
+	
 	return data;
 }
-
 
 #pragma mark File Contents
 - (BOOL)openFileAtPath:(NSString *)path 
@@ -549,6 +588,19 @@
 }
 
 
+- (NSString *)destinationOfSymbolicLinkAtPath:(NSString *)path
+                                        error:(NSError **)error
+{
+	return [[self fileSystem] destinationOfSymbolicLinkAtPath: path error: error];
+}
+
+
+/*
+- (NSData *) contentsAtPath: (NSString *) path
+{
+	return [[self fileSystem] contentsAtPath: path];
+}
+*/
 @end
 
 

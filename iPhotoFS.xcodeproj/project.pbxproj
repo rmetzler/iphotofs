@@ -12,11 +12,11 @@
 		465356BB10BCB569006D8666 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 465356BA10BCB569006D8666 /* README */; };
 		469C8D9A10E072620004F080 /* iphotofs_app.icns in Resources */ = {isa = PBXBuildFile; fileRef = 469C8D9910E072620004F080 /* iphotofs_app.icns */; };
 		46E1C17110ACDE710084B1A2 /* iPhotoFilesystem.m in Sources */ = {isa = PBXBuildFile; fileRef = 46E1C17010ACDE710084B1A2 /* iPhotoFilesystem.m */; };
+		46F3D6D710E7D9AC00182F9F /* MacFUSE.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46F3D6D610E7D9AC00182F9F /* MacFUSE.framework */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		FFA311CF0EE5160400FF2904 /* iphotofs.icns in Resources */ = {isa = PBXBuildFile; fileRef = FFA311CE0EE5160400FF2904 /* iphotofs.icns */; };
-		FFA311D10EE5167200FF2904 /* MacFUSE.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FFA311D00EE5167200FF2904 /* MacFUSE.framework */; };
 		FFD925C00EE507A800A7B2B2 /* iPhotoFS_Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = FFD925BF0EE507A800A7B2B2 /* iPhotoFS_Controller.m */; };
 /* End PBXBuildFile section */
 
@@ -35,10 +35,10 @@
 		469C8D9910E072620004F080 /* iphotofs_app.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = iphotofs_app.icns; sourceTree = "<group>"; };
 		46E1C16F10ACDE710084B1A2 /* iPhotoFilesystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iPhotoFilesystem.h; sourceTree = "<group>"; };
 		46E1C17010ACDE710084B1A2 /* iPhotoFilesystem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iPhotoFilesystem.m; sourceTree = "<group>"; };
+		46F3D6D610E7D9AC00182F9F /* MacFUSE.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MacFUSE.framework; path = /Library/Frameworks/MacFUSE.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* iPhotoFS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iPhotoFS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFA311CE0EE5160400FF2904 /* iphotofs.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = iphotofs.icns; sourceTree = "<group>"; };
-		FFA311D00EE5167200FF2904 /* MacFUSE.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MacFUSE.framework; path = /Library/Frameworks/MacFUSE.framework; sourceTree = "<absolute>"; };
 		FFD925BE0EE507A800A7B2B2 /* iPhotoFS_Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iPhotoFS_Controller.h; sourceTree = "<group>"; };
 		FFD925BF0EE507A800A7B2B2 /* iPhotoFS_Controller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iPhotoFS_Controller.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -49,7 +49,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
-				FFA311D10EE5167200FF2904 /* MacFUSE.framework in Frameworks */,
+				46F3D6D710E7D9AC00182F9F /* MacFUSE.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,8 +72,8 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				46F3D6D610E7D9AC00182F9F /* MacFUSE.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
-				FFA311D00EE5167200FF2904 /* MacFUSE.framework */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";
@@ -234,6 +234,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/../src/macfuse-read-only/core/sdk-objc/build/Debug\"",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -255,6 +256,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/../src/macfuse-read-only/core/sdk-objc/build/Debug\"",
 				);
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

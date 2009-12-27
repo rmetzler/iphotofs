@@ -218,7 +218,7 @@ NSString *WatchdogFlagsKey = @"WatchdogFlags";
       [client reload];
     }
     else {
-      [client reload];
+	      [client reload];
     }
   }
   else {
